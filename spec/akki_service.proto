@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "spec";
+option go_package = "repos.his-j.com/his/connext-spec/spec";
+
+package spec;
+
+import "spec/request/chat_message_request.proto";
+import "spec/response/chat_message_response.proto";
+import "google/api/annotations.proto";
+
+service AkkiService {
+    // メッセージ更新API
+    rpc saveEstimateMessage(spec.request.ChatMessageRequest) returns (spec.response.ChatMessageResponse) {
+      option (google.api.http) = {
+        post: "/saveChatMessage"
+     };
+    }
+
+    // メッセージ取得API
+    rpc getEstimateMessage(spec.request.ChatMessageRequest) returns (stream spec.response.ChatMessageResponse) {
+      option (google.api.http) = {
+        post: "/getChatMessage"
+     };
+    }
+}

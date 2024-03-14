@@ -1,0 +1,9 @@
+version: v1
+deps:
+  - buf.build/googleapis/googleapis #googleが提供する型定義への依存を追加
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT

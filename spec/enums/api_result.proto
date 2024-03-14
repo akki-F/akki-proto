@@ -1,0 +1,18 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "spec.enums";
+package spec.enums;
+
+/*
+ * 列挙型 エラーコード/error_code
+ */
+enum ApiResult {
+  // Unknown/不明
+  API_RESULT_UNKNOWN = 0;
+
+  // success/成功
+  API_RESULT_SUCCESS = 1;
+
+  // NotFound/失敗
+  API_RESULT_ERROR = 2;
+}

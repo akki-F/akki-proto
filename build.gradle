@@ -1,0 +1,155 @@
+def group = 'akkiF'
+def version = '1.0.0'
+def protobufVersion = '3.23.2'
+def grpcVersion = 'latest.release'
+
+buildscript {
+    // apply from: "bootstrap.gradle"
+
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:[2,3)'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:latest.release'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'java-library'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.google.protobuf'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    // Protocol Buffers
+    api "com.google.protobuf:protobuf-java:${protobufVersion}"
+    api "com.google.protobuf:protobuf-java-util:${protobufVersion}"
+
+    // gRPC
+    api "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    api "io.grpc:grpc-protobuf:${grpcVersion}"
+    api "io.grpc:grpc-stub:${grpcVersion}"
+
+    api "javax.annotation:javax.annotation-api:latest.release"
+
+    // googleapi proto
+    api "com.google.api.grpc:proto-google-common-protos:latest.release"
+}
+
+// Java 関連の設定
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile){
+    options.encoding = 'UTF-8'
+    // options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
+sourceSets {
+    main {
+        java {
+        }
+        proto {
+           // Proto file source directory
+           srcDir('.')
+           exclude 'build'
+        }
+    }
+}
+
+processResources {
+    exclude '**/*'
+}
+
+test {
+}
+
+javadoc {
+    options.source = JavaVersion.VERSION_17
+    options.charSet = 'UTF-8'
+    options.encoding = 'UTF-8'
+    options.docEncoding = 'UTF-8'
+
+    options.addStringOption('Xdoclint:none', '-quiet') // トリック(単独オプションの指定が出来ないため)
+    if (JavaVersion.current().ordinal() >= JavaVersion.VERSION_17.ordinal()) {
+        options.addStringOption('html5', '-use') // トリック(単独オプションの指定が出来ないため)
+    }
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    classifier = ''
+    from sourceSets.main.proto
+    from sourceSets.main.output
+    exclude('.*/**')
+    exclude('doc/**')
+    exclude('protoc/**')
+    exclude('swagger-document/**')
+    exclude('swagger-ui/**')
+    exclude('template/**')
+    exclude('templates/**')
+}
+
+project.tasks.matching { ['sourcesJar', 'generatePomFileForMavenJavaPublication'].contains(it.name) }.all {
+    it.dependsOn ':generateProto'
+}
+
+// Protocol Buffers の設定
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+// eclipse の設定
+eclipse {
+    classpath {
+        containers 'org.springsource.ide.eclipse.gradle.classpathcontainer'
+        downloadSources = true
+        downloadJavadoc = true
+    }
+    // Protocol Buffers のビルドを自動で行う
+    //autoBuildTasks ":generateProto"
+}
+
+// maven repository 関係の設定
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            withBuildIdentifier()
+        }
+    }
+    // リポジトリの定義
+}
+publish.dependsOn build
+
+task uploadArchives(description: "maven プラグイン互換タスク", group: "backward compatibility", dependsOn: publish)

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "spec.request";
+
+package spec.request;
+
+import "spec/model/chat_message_model.proto";
+import "spec/model/user_model.proto";
+
+/*
+ * チャットメッセージ取得処理APIリクエスト
+ */
+message ChatMessageRequest{
+  // 【M】
+  // メッセージ
+  spec.model.ChatMessageModel chat = 1;
+
+  // 【O】
+  // ユーザー情報
+  spec.model.UserModel user = 2;
+}

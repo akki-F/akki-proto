@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "spec.model";
+
+package spec.model;
+
+import "google/protobuf/wrappers.proto";
+import "google/type/datetime.proto";
+
+/*
+ * チャットメッセージ
+ */
+message ChatMessageModel {
+
+  // 【M】
+  // チャットコード
+  string chat_code = 1;
+
+  // 【M】
+  // メッセージ連番
+  uint64 message_seq = 2;
+
+  // 【M】
+  // メッセージ内容
+  string message_content = 3;
+
+  // 【M】
+  // メッセージ投稿日時
+  google.type.DateTime message_datetime = 4;
+
+  // 【M】
+  // 既読フラグ
+  bool read_flag = 5;
+  
+  // 【M】
+  // メッセージ投稿者名称
+  string pic_name = 6;
+}

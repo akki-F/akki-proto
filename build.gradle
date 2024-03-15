@@ -1,5 +1,5 @@
-def group = 'akkiF'
-def version = '1.0.0'
+group = 'akkiF'
+version = '1.0.0'
 def protobufVersion = '3.23.2'
 def grpcVersion = 'latest.release'
 
@@ -148,7 +148,9 @@ publishing {
             withBuildIdentifier()
         }
     }
-    // リポジトリの定義
+    repositories {
+        mavenLocal()
+    }
 }
 publish.dependsOn build
 
